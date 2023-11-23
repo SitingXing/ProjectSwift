@@ -3,7 +3,8 @@ import { Input } from "@rneui/themed";
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-function ProjectStageItem() {
+function ProjectStageItem({handleStageNameInput, handleStageStartInput, handleStageEndInput}) {
+    const [name, setName] = useState('');
     const [startDate, setStartDate] = useState(new Date());
     const [showstart, setShowstart] = useState(false);
     const [endDate, setEndDate] = useState(new Date());
@@ -17,9 +18,14 @@ function ProjectStageItem() {
                     style={styles.inputBox}
                     inputContainerStyle={styles.inputContainerStyle}
                     inputStyle={[
-                    styles.inputStyle,
-                    { fontFamily: "Poppins_400Regular" },
+                        styles.inputStyle,
+                        { fontFamily: "Poppins_400Regular" },
                     ]}
+                    value={name}
+                    onChangeText={(text) => {
+                        setName(text);
+                        handleStageNameInput(text);
+                    }}
                 />
             </View>
             <TouchableOpacity
@@ -33,6 +39,7 @@ function ProjectStageItem() {
                     value={startDate}
                     onChange={(event, selectedDate) => {
                         setStartDate(selectedDate);
+                        handleStageStartInput(selectedDate);
                         setShowstart(false);
                     }}
                 />
@@ -49,6 +56,7 @@ function ProjectStageItem() {
                     value={endDate}
                     onChange={(event, selectedDate) => {
                         setEndDate(selectedDate);
+                        handleStageEndInput(selectedDate);
                         setShowend(false);
                     }}
                 />
@@ -63,6 +71,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         justifyContent: 'space-around',
+        marginBottom: -15,
     },
     input: {
         width: '45%',

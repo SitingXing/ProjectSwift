@@ -1,9 +1,9 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, setDoc, doc, onSnapshot, collection, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { getFirestore, setDoc, doc, onSnapshot, collection, getDoc, getDocs, updateDoc, addDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { firebaseConfig } from "../Secrets";
-import { SET_USER, LOAD_PROJECTS, LOAD_USERLIST } from "./Reducer";
+import { SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT } from "./Reducer";
 
 let app;
 const apps = getApps();
@@ -135,4 +135,77 @@ const setUserList = (authUser) => {
     }
 };
 
-export { addUser, setUser, subscribeToProjectsUpdates, unsubscribeFromProjects, setUserList };
+const addProject = (logo, projectName, description, members, startDate, endDate, stages) => {
+    return async (dispatch) => {
+        const fileName = logo.split('/').pop();
+        const pictureRef = ref(storage, `projectLogoImages/${fileName}`);
+        const response = await fetch(logo);
+        const imageBlob = await response.blob();
+        await uploadBytes(pictureRef, imageBlob);
+        const downloadURL = await getDownloadURL(pictureRef);
+        const newImage = downloadURL;
+
+        const newProject = {
+            basicInfo: {
+                name: projectName,
+                logo: newImage,
+                description: description,
+                startDate: startDate,
+                endDate: endDate,
+            },
+            members: [...members],
+        };
+        const newStages = stages.map((stage) => {
+            return {
+                stageName: stage.title,
+                startDate: stage.startDate,
+                endDate: stage.endDate,
+            };
+        });
+        const projectRef = await addDoc(collection(db, 'Projects'), newProject);
+        newProject.id = projectRef.id;
+
+        for (let stage of newStages) {
+            const stageRef = await addDoc(collection(db, 'Projects', projectRef.id, 'stages'), stage);
+            stage.id = stageRef.id;
+        };
+
+        const savedStages = newStages.map(stage => {
+            return {
+                ...stage,
+                startDate: stage.startDate.toLocaleDateString(),
+                endDate: stage.endDate.toLocaleDateString(),
+            }
+        });
+
+        const project = {
+            ...newProject,
+            basicInfo: {
+                ...newProject.basicInfo,
+                startDate: newProject.basicInfo.startDate.toLocaleDateString(),
+                endDate: newProject.basicInfo.endDate.toLocaleDateString(),
+            },
+            stages: savedStages,
+            tasks: [],
+        };
+
+        dispatch({
+            type: ADD_PROJECT,
+            payload: {
+                id: newProject.id,
+                newProject: project,
+            },
+        });
+
+        const promises = newProject.members.map(async(member) => {
+            const ref = doc(db, 'users', member);
+            const snap = await getDoc(ref);
+            const projectsList = snap.data().projectsList;
+            const newList = projectsList.concat(newProject.id);
+            await updateDoc(ref, {projectsList: newList});
+        });
+        await Promise.all(promises);
+    }
+};
+
+export { addUser, setUser, subscribeToProjectsUpdates, unsubscribeFromProjects, setUserList, addProject };

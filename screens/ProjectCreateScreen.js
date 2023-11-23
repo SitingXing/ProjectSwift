@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button, Icon, Input, Overlay } from "@rneui/themed";
 import { useEffect, useState } from "react";
@@ -13,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
 
 import ProjectStageItem from "../components/ProjectStageItem";
-import { setUserList } from "../data/Actions";
+import { setUserList, addProject } from "../data/Actions";
 
 function ProjectCreateScreen({ navigation, route }) {
   const { currentUser } = route.params;
@@ -30,6 +24,8 @@ function ProjectCreateScreen({ navigation, route }) {
 
   const [selectedMembers, setSelectedMembers] = useState([]);
 
+  const [stages, setStages] = useState([]);
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -43,8 +39,50 @@ function ProjectCreateScreen({ navigation, route }) {
 
   const selectMember = (item) => {
     const list = [...selectedMembers];
-    const updatedList = list.map((user) => user.key === item.key? {...item, selected: !item.selected} : user);
+    const updatedList = list.map((user) =>
+      user.key === item.key ? { ...item, selected: !item.selected } : user
+    );
     setSelectedMembers(updatedList);
+  };
+
+  const handleStagePlus = () => {
+    const newStage = {
+      title: "",
+      startDate: new Date(),
+      endDate: new Date(),
+    };
+    setStages([...stages, newStage]);
+  };
+
+  const handleStageNameInput = (index, text) => {
+    const newStages = [...stages];
+    const newStage = { ...newStages[index] };
+    newStage.title = text;
+    newStages[index] = newStage;
+    setStages(newStages);
+  };
+
+  const handleStageStartInput = (index, date) => {
+    const newStages = [...stages];
+    const newStage = { ...newStages[index] };
+    newStage.startDate = date;
+    newStages[index] = newStage;
+    setStages(newStages);
+  };
+
+  const handleStageEndInput = (index, date) => {
+    const newStages = [...stages];
+    const newStage = { ...newStages[index] };
+    newStage.endDate = date;
+    newStages[index] = newStage;
+    setStages(newStages);
+  };
+
+  const saveProject = () => {
+    const selected = selectedMembers.filter(member => member.selected === true);
+    const savedMembers = selected.map(member => member.key);
+    const members = savedMembers.concat(currentUser.key);
+    dispatch(addProject(projectLogo.uri, projectName, description, members, startDate, endDate, stages));
   };
 
   useEffect(() => {
@@ -52,12 +90,14 @@ function ProjectCreateScreen({ navigation, route }) {
   }, []);
 
   useEffect(() => {
-    setSelectedMembers([...userList].map(user => {
+    setSelectedMembers(
+      [...userList].map((user) => {
         return {
-            ...user,
-            selected: false,
-        }
-    }));
+          ...user,
+          selected: false,
+        };
+      })
+    );
   }, [userList]);
 
   return (
@@ -95,7 +135,7 @@ function ProjectCreateScreen({ navigation, route }) {
               ) : (
                 <Image
                   source={{ uri: projectLogo.uri }}
-                  style={{ width: 40, height: 40 }}
+                  style={{ width: 40, height: 40, borderRadius: 40 }}
                 />
               )}
             </TouchableOpacity>
@@ -139,16 +179,16 @@ function ProjectCreateScreen({ navigation, route }) {
               source={{ uri: currentUser.profile.uri }}
             />
             {selectedMembers.map((member, index) => {
-                if (member.selected) {
-                    return (
-                        <View key={index}>
-                            <Image
-                                style={styles.profileImage}
-                                source={{uri: member.profile}}
-                            />
-                        </View>
-                    )
-                };
+              if (member.selected) {
+                return (
+                  <View key={index}>
+                    <Image
+                      style={styles.profileImage}
+                      source={{ uri: member.profile }}
+                    />
+                  </View>
+                );
+              }
             })}
             <TouchableOpacity onPress={() => setOverlayShow(true)}>
               <Icon
@@ -208,11 +248,20 @@ function ProjectCreateScreen({ navigation, route }) {
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
             Stages:
           </Text>
-          <View>
+          <ScrollView style={styles.scrollView}>
             <View style={styles.stageList}>
-              <ProjectStageItem />
+              {stages.map((stage, index) => (
+                <ProjectStageItem
+                  key={index}
+                  handleStageNameInput={(text) =>
+                    handleStageNameInput(index, text)
+                  }
+                  handleStageStartInput={(date) => handleStageStartInput(index, date)}
+                  handleStageEndInput={(date) => handleStageEndInput(index, date)}
+                />
+              ))}
             </View>
-            <TouchableOpacity style={styles.plusBtn}>
+            <TouchableOpacity style={styles.plusBtn} onPress={handleStagePlus}>
               <Icon
                 type="ant-design"
                 name="pluscircle"
@@ -221,51 +270,68 @@ function ProjectCreateScreen({ navigation, route }) {
                 style={styles.plusIcon}
               />
             </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
       </View>
       {/* buttons */}
       <View style={styles.btn}>
-        <TouchableOpacity style={styles.createBtn}>
+        <TouchableOpacity
+            style={styles.createBtn}
+            onPress={saveProject}
+        >
           <Text style={[styles.btnText, { fontFamily: "Poppins_600SemiBold" }]}>
             Add New Project
           </Text>
         </TouchableOpacity>
       </View>
-      {/* gradient */}
-      <LinearGradient
-        colors={["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.6)"]}
-        style={styles.gradientBlock}
-      />
       {/* member selection */}
       <Overlay
         isVisible={overlayShow}
         onBackdropPress={() => setOverlayShow(false)}
         overlayStyle={styles.overlayContainer}
       >
-        <Text style={[styles.overlayHeader, { fontFamily: "Poppins_600SemiBold" }]}>Member</Text>
+        <Text
+          style={[styles.overlayHeader, { fontFamily: "Poppins_600SemiBold" }]}
+        >
+          Member
+        </Text>
         <View style={styles.userList}>
-            {selectedMembers.map((item, index) => {
-                return (
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.userItemContainer}
-                        onPress={() => selectMember(item)}
-                    >
-                        <Image
-                            source={{ uri: item.profile }}
-                            style={item.selected ? styles.selectedProfile:styles.userProfile}
-                        />
-                        <Text style={item.selected ? [styles.selectedName, { fontFamily: "Poppins_500Medium" }]:[styles.userName, { fontFamily: "Poppins_400Regular" }]}>{item.userName}</Text>
-                    </TouchableOpacity>
-                )
-            })}
+          {selectedMembers.map((item, index) => {
+            return (
+              <TouchableOpacity
+                key={index}
+                style={styles.userItemContainer}
+                onPress={() => selectMember(item)}
+              >
+                <Image
+                  source={{ uri: item.profile }}
+                  style={
+                    item.selected ? styles.selectedProfile : styles.userProfile
+                  }
+                />
+                <Text
+                  style={
+                    item.selected
+                      ? [
+                          styles.selectedName,
+                          { fontFamily: "Poppins_500Medium" },
+                        ]
+                      : [styles.userName, { fontFamily: "Poppins_400Regular" }]
+                  }
+                >
+                  {item.userName}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
         <TouchableOpacity
-            style={styles.overlayBtn}
-            onPress={() => setOverlayShow(false)}
+          style={styles.overlayBtn}
+          onPress={() => setOverlayShow(false)}
         >
-          <Text style={[styles.btnText, { fontFamily: "Poppins_600SemiBold" }]}>Add Member</Text>
+          <Text style={[styles.btnText, { fontFamily: "Poppins_600SemiBold" }]}>
+            Add Member
+          </Text>
         </TouchableOpacity>
       </Overlay>
     </View>
@@ -374,20 +440,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1A1E1F",
   },
-  stageList: {
-    marginBottom: -15,
+  scrollView: {
+    height: 160,
   },
   plusBtn: {
     alignSelf: "flex-start",
     marginLeft: 20,
-  },
-  gradientBlock: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-    zIndex: 1,
   },
   btn: {
     position: "absolute",
@@ -410,33 +468,33 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   overlayContainer: {
-    height: '40%',
-    width: '80%',
+    height: "40%",
+    width: "80%",
     borderRadius: 10,
     paddingVertical: 20,
     paddingHorizontal: 25,
   },
   overlayHeader: {
     fontSize: 20,
-    color: '#1A1E1F',
+    color: "#1A1E1F",
     paddingBottom: 10,
-    borderBottomColor: '#F7F7F7',
+    borderBottomColor: "#F7F7F7",
     borderBottomWidth: 2,
   },
   userList: {
     marginTop: 20,
     marginHorizontal: 5,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
     rowGap: 15,
   },
   userItemContainer: {
-    width: '50%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    width: "50%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
     columnGap: 10,
   },
   userProfile: {
@@ -448,25 +506,25 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 40,
-    borderColor: '#265504',
+    borderColor: "#265504",
     borderWidth: 3,
   },
   userName: {
-    color: '#1A1E1F',
+    color: "#1A1E1F",
     fontSize: 16,
   },
   selectedName: {
-    color: '#265504',
+    color: "#265504",
     fontSize: 16,
   },
   overlayBtn: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 25,
     left: 25,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     height: 40,
-    backgroundColor: '#C4E868',
+    backgroundColor: "#C4E868",
     borderRadius: 35,
     paddingTop: 2,
   },
