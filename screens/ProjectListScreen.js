@@ -9,15 +9,14 @@ import { getAuthUser } from "../AuthManager";
 import ProjectListItem from "../components/ProjectListItem";
 
 
-function ProjectListScreen() {
+function ProjectListScreen({navigation}) {
     const dispatch = useDispatch();
-    const currentAuthUser = getAuthUser();
+    const currentUser = useSelector(state => state.currentUser);
+    const projects = useSelector((state) => state.projects);
 
     useEffect(() => {
-        dispatch(subscribeToProjectsUpdates(currentAuthUser.uid));
+        dispatch(subscribeToProjectsUpdates(currentUser.key));
     }, []);
-
-    const projects = useSelector((state) => state.projects);
 
     return (
         <View style={styles.container}>
@@ -28,6 +27,7 @@ function ProjectListScreen() {
                 {projects.map((item, index) => <ProjectListItem key={index} item={item} />)}
                 <TouchableOpacity
                     style={styles.addBtn}
+                    onPress={() => navigation.navigate('ProjectCreate', {currentUser: currentUser})}
                 >
                     <Icon name="plus" type="ant-design" size={42} color="#265504" />
                     <Text style={[styles.addText, {fontFamily: 'Poppins_400Regular'}]}>Add new project</Text>

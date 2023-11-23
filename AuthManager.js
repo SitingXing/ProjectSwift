@@ -11,6 +11,7 @@ import {
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { firebaseConfig } from "./Secrets";
+import { setUser } from "./data/Actions";
 
 let app, auth;
 
@@ -47,13 +48,10 @@ const getAuthUser = () => {
     return auth.currentUser;
 };
 
-let unsubscribeFromAuthChanges = undefined;
-const subscribeToAuthChanges = (navigation) => {
-    if (unsubscribeFromAuthChanges) {
-        unsubscribeFromAuthChanges();
-    }
-    unsubscribeFromAuthChanges = onAuthStateChanged(auth, (user) => {
-        if (user) {
+const subscribeToAuthChanges = (navigation, dispatch, currentUser) => {
+    onAuthStateChanged(auth, async (authUser) => {
+        if (authUser) {
+            await dispatch(setUser(authUser));
             navigation.navigate('Home');
         } else {
             navigation.navigate('Login');

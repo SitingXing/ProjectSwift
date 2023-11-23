@@ -1,15 +1,17 @@
-const ADD_USER = "ADD_USER";
+const SET_USER = "SET_USER";
 const LOAD_PROJECTS = "LOAD_PROJECTS";
+const LOAD_USERLIST = "LOAD_USERLIST";
 
 const initialState = {
-    users: [],
+    currentUser: {},
     projects: [],
+    userList: [],
 };
 
-const addUser = (state, payload) => {
+const _setUser = (state, user) => {
     return {
         ...state,
-        usres: state.users.concat({...payload.user}),
+        currentUser: user,
     }
 };
 
@@ -18,17 +20,26 @@ const loadProjects = (state, payload) => {
         ...state,
         projects: [...payload.projects],
     }
-}
+};
+
+const loadUserList = (state, payload) => {
+    return {
+        ...state,
+        userList: [...payload.userList],
+    }
+};
 
 const rootReducer = (state=initialState, action) => {
     switch (action.type) {
-        case ADD_USER:
-            return addUser(state, action.payload);
+        case SET_USER:
+            return _setUser(state, action.payload.user);
         case LOAD_PROJECTS:
             return loadProjects(state, action.payload);
+        case LOAD_USERLIST:
+            return loadUserList(state, action.payload);
         default:
             return state;
     }
 };
 
-export { rootReducer, ADD_USER, LOAD_PROJECTS };
+export { rootReducer, SET_USER, LOAD_PROJECTS, LOAD_USERLIST };

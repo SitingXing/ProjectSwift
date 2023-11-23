@@ -9,6 +9,7 @@ import { rootReducer } from "./data/Reducer";
 import LoginScreen from "./screens/LoginScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import ProjectListScreen from "./screens/ProjectListScreen";
+import ProjectCreateScreen from "./screens/ProjectCreateScreen";
 import ChatListScreen from "./screens/ChatListScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 
@@ -165,6 +166,7 @@ function AppContainer() {
                 >
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Home" component={TabsStack} />
+                    <Stack.Screen name="ProjectCreate" component={ProjectCreateScreen} />
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>

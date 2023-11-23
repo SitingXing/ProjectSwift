@@ -1,15 +1,17 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Icon } from "@rneui/themed";
 import { LinearGradient } from 'expo-linear-gradient';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 
-import { getAuthUser } from "../AuthManager";
+import { getAuthUser, subscribeToAuthChanges } from "../AuthManager";
+import { setUser, subscribeToProjectsUpdates, setUserList } from "../data/Actions";
 
 
 function DashboardScreen({navigation}) {
     const dispatch = useDispatch();
+    const currentUser = useSelector(state => state.currentUser);
 
-    const currentAuthUser = getAuthUser();
     const now = new Date();
     const date = now.toLocaleDateString('en-US', {
         month: 'long',
@@ -17,16 +19,24 @@ function DashboardScreen({navigation}) {
         year: 'numeric',
     });
 
+    useEffect(() => {
+        dispatch(subscribeToProjectsUpdates(getAuthUser().uid));
+    }, []);
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={[styles.date, {fontFamily: "Poppins_600SemiBold"}]}>{date}</Text>
-                <TouchableOpacity
-                    style={styles.profile}
-                    onPress={() => navigation.navigate('Setting')}
-                >
-                    <Icon name="circle" type="font-awesome" size={42} color='white' />
-                </TouchableOpacity>
+                <View style={styles.profile}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Setting')}
+                    >
+                        <Image
+                            style={styles.profileImage}
+                            source={{uri: currentUser.profile.uri}}
+                        />
+                    </TouchableOpacity>
+                </View>
             </View>
             {/* gradient */}
             <LinearGradient
@@ -60,6 +70,11 @@ const styles = StyleSheet.create({
     },
     profile: {
         marginBottom: 10,
+    },
+    profileImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 50,
     },
     gradientBlock: {
         position: 'absolute',

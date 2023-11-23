@@ -1,14 +1,28 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+} from "react-native";
 import { Input, Icon } from "@rneui/themed";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
 
-import { signIn, signUp, subscribeToAuthChanges } from "../AuthManager";
-import { addUser } from "../data/Actions";
+import { getAuthUser, signIn, signUp, subscribeToAuthChanges } from "../AuthManager";
+import { addUser, setUser } from "../data/Actions";
+import { useSelector } from "react-redux";
 
-function SigninBox({ setLoginMode }) {
+function SigninBox({ setLoginMode, navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    subscribeToAuthChanges(navigation, dispatch);
+  }, []);
 
   return (
     <View style={styles.boxContainer}>
@@ -60,6 +74,7 @@ function SigninBox({ setLoginMode }) {
           onPress={async () => {
             try {
               await signIn(email, password);
+              dispatch(setUser(getAuthUser()));
             } catch (error) {
               Alert.alert("Sign Up Error", "Invalid email and password", [
                 { text: "OK" },
@@ -98,10 +113,22 @@ function SigninBox({ setLoginMode }) {
   );
 }
 
-function SignupBox({ setLoginMode, dispatch }) {
+function SignupBox({ setLoginMode, dispatch, navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [profile, setProfile] = useState(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    setProfile(result.assets[0]);
+  };
 
   return (
     <View style={styles.boxContainer}>
@@ -159,15 +186,22 @@ function SignupBox({ setLoginMode, dispatch }) {
             Profile:
           </Text>
         </View>
-        <View>
-          <TouchableOpacity>
-            <Icon
-              type="ant-design"
-              name="pluscircle"
-              size={60}
-              color="#F7F7F7"
-              style={styles.plusIcon}
-            />
+        <View style={styles.profile}>
+          <TouchableOpacity onPress={pickImage}>
+            {!profile ? (
+              <Icon
+                type="ant-design"
+                name="pluscircle"
+                size={50}
+                color="#F7F7F7"
+                style={styles.plusIcon}
+              />
+            ) : (
+              <Image
+                source={{ uri: profile.uri }}
+                style={{ width: 50, height: 50 }}
+              />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -176,14 +210,9 @@ function SignupBox({ setLoginMode, dispatch }) {
         <TouchableOpacity
           style={styles.btnActive}
           onPress={async () => {
-            try {
-              const newUser = await signUp(userName, email, password);
-              dispatch(addUser(newUser));
-            } catch (error) {
-              Alert.alert("Sign Up Error", "Email already being signed", [
-                { text: "OK" },
-              ]);
-            }
+            const newUser = await signUp(userName, email, password);
+            await dispatch(addUser(newUser, profile));
+            navigation.navigate('Home');
           }}
         >
           <Text
@@ -222,18 +251,14 @@ function SignupBox({ setLoginMode, dispatch }) {
 function LoginScreen({ navigation }) {
   const [loginMode, setLoginMode] = useState(true);
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    subscribeToAuthChanges(navigation);
-  }, []);
+  const dispatch = useDispatch(); 
 
   return (
     <View style={styles.container}>
       {loginMode ? (
-        <SigninBox setLoginMode={setLoginMode} />
+        <SigninBox setLoginMode={setLoginMode} navigation={navigation} />
       ) : (
-        <SignupBox setLoginMode={setLoginMode} dispatch={dispatch} />
+        <SignupBox setLoginMode={setLoginMode} dispatch={dispatch} navigation={navigation} />
       )}
     </View>
   );
@@ -336,9 +361,15 @@ const styles = StyleSheet.create({
     color: "#828282",
     fontSize: 18,
   },
+  profile: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    overflow: 'hidden',
+    marginLeft: 10,
+  },
   plusIcon: {
     alignItems: "flex-start",
-    marginLeft: 10,
   },
 });
 
