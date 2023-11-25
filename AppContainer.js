@@ -12,6 +12,7 @@ import ProjectListScreen from "./screens/ProjectListScreen";
 import ProjectCreateScreen from "./screens/ProjectCreateScreen";
 import ChatListScreen from "./screens/ChatListScreen";
 import SettingsScreen from "./screens/SettingsScreen";
+import ProjectDetailScreen from "./screens/ProjectDetailScreen";
 
 
 const store = configureStore({
@@ -40,6 +41,7 @@ function ProjectTabStack() {
             screenOptions={{ headerShown: false }}
         >
             <Stack.Screen name="ProjectList" component={ProjectListScreen} />
+            <Stack.Screen name="ProjectDatail" component={ProjectDetailScreen} />
         </Stack.Navigator>
     )
 }

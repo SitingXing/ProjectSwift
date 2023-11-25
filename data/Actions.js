@@ -90,10 +90,30 @@ const subscribeToProjectsUpdates = (userUid) => {
                         month: "short",
                         day: "numeric",
                     };
+                    const startDate = project.startDate.toDate().toLocaleDateString("en-US", options);
                     const endDate = project.endDate.toDate().toLocaleDateString("en-US", options);
-                    return {
-                        name: project.name,
+                    const newBasicInfo = {
+                        ...project,
+                        startDate: startDate,
                         endDate: endDate,
+                    };
+
+                    const stageRef = collection(db, 'Projects', id, 'stages');
+                    const stageDoc = await getDocs(stageRef);
+                    const stages = stageDoc.docs.map((doc) => {
+                        const startDate = doc.data().startDate.toDate().toLocaleDateString("en-US", options);
+                        const endDate = doc.data().endDate.toDate().toLocaleDateString("en-US", options);
+                        return {
+                            ...doc.data(),
+                            key: doc._key.path.segments[8],
+                            startDate: startDate,
+                            endDate: endDate,
+                        }
+                    });
+                    return {
+                        ...projectDoc.data(),
+                        basicInfo: newBasicInfo,
+                        stages: stages,
                     };
                 });
                 const projects = await Promise.all(projectsPromises);
