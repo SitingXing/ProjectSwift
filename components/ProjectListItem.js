@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { Icon } from "@rneui/themed";
 
 function ProjectListItem({ item, navigation }) {
@@ -6,23 +6,20 @@ function ProjectListItem({ item, navigation }) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate("ProjectDatail", {item: item})}
+      onPress={() => navigation.navigate("ProjectDatail", {projectId: item.key})}
     >
       <View style={styles.dateContainer}>
         <Icon name="flag" type="ionicon" size={16} color="white" />
         <Text style={[styles.date, { fontFamily: "Poppins_400Regular" }]}>
-          {item.basicInfo.endDate}
+          {item.endDate}
         </Text>
       </View>
-      <Icon
+      <Image
         style={styles.icon}
-        name="circle"
-        type="font-awesome"
-        size={32}
-        color="white"
+        source={{uri: item.logo}}
       />
       <Text style={[styles.name, { fontFamily: "Poppins_600SemiBold" }]}>
-        {item.basicInfo.name}
+        {item.name}
       </Text>
     </TouchableOpacity>
   );
@@ -58,6 +55,9 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginLeft: 15,
+    width: 30,
+    height: 30,
+    borderRadius: 30,
   },
   name: {
     fontSize: 24,
