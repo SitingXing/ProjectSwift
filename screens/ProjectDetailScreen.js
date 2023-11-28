@@ -2,29 +2,40 @@ import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import { Icon } from "@rneui/themed";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import DetailNavigation from "../components/ProjectDetail/DetailNavigation";
 import OverviewPage from "../components/ProjectDetail/OverviewPage";
 import PlusBtn from "../components/ProjectDetail/PlusBtn";
-import { subscribeToCurrentProjectUpdates, subscribeToStagesUpdate, updateProject } from "../data/Actions";
+import {
+  subscribeToCurrentProjectUpdates,
+  subscribeToStagesUpdate,
+  subscribeToTasksUpdate,
+  updateProject,
+} from "../data/Actions";
+import TasksPage from "../components/ProjectDetail/TasksPage";
 
 function ProjectDetailScreen({ route, navigation }) {
   const { projectId } = route.params;
   const dispatch = useDispatch();
-  const currentProject = useSelector(state => state.currentProject);
-  const currentProjectStages = useSelector(state => state.currentProjectStages);
+  const currentProject = useSelector((state) => state.currentProject);
+  const currentProjectStages = useSelector(
+    (state) => state.currentProjectStages
+  );
+  const currentProjectTasks = useSelector((state) => state.currentProjectTasks);
+
+  const [selected, setSelected] = useState(0);
+  const navigationList = ["Overview", "Stages", "Tasks", "Team"];
 
   useEffect(() => {
     dispatch(subscribeToCurrentProjectUpdates(projectId));
     dispatch(subscribeToStagesUpdate(projectId));
+    dispatch(subscribeToTasksUpdate(projectId));
   }, []);
 
   if (!currentProject.basicInfo) {
-    return (
-        <View></View>
-    )
-  };
+    return <View></View>;
+  }
 
   const currentDate = new Date();
   const currentStage = currentProjectStages.find((stage) => {
@@ -46,15 +57,14 @@ function ProjectDetailScreen({ route, navigation }) {
             color="#1A1E1F"
           />
         </TouchableOpacity>
-        <Image source={{ uri: currentProject.basicInfo.logo }} style={styles.logo} />
+        <Image
+          source={{ uri: currentProject.basicInfo.logo }}
+          style={styles.logo}
+        />
         <Text style={[styles.header, { fontFamily: "Poppins_600SemiBold" }]}>
           {currentProject.basicInfo.name}
         </Text>
       </View>
-      {/* navigation */}
-      <DetailNavigation />
-      {/* content */}
-      <OverviewPage members={currentProject.members} currentStage={currentStage.stageName} />
       {/* gradient */}
       <LinearGradient
         colors={["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.75)"]}
@@ -62,7 +72,32 @@ function ProjectDetailScreen({ route, navigation }) {
         pointerEvents="none"
       />
       {/* Plus */}
-      <PlusBtn />
+      <PlusBtn
+        navigation={navigation}
+        members={currentProject.members}
+        stages={[...currentProjectStages]}
+        projectId={projectId}
+      />
+      {/* navigation */}
+      <DetailNavigation
+        selected={selected}
+        setSelected={setSelected}
+        navigationList={navigationList}
+      />
+      {/* content */}
+      {selected === 0 && (
+        <OverviewPage
+          members={currentProject.members}
+          currentStage={currentStage ? currentStage.stageName : ""}
+        />
+      )}
+      {selected === 2 && (
+        <TasksPage
+          tasks={[...currentProjectTasks]}
+          projectId={projectId}
+          navigation={navigation}
+        />
+      )}
     </View>
   );
 }
@@ -101,6 +136,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 100,
+    zIndex: 80,
   },
 });
 

@@ -13,7 +13,7 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { firebaseConfig } from "../Secrets";
-import { SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES } from "./Reducer";
+import { SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES, SET_TASKS } from "./Reducer";
 
 let app;
 const apps = getApps();
@@ -239,6 +239,7 @@ const addProject = (
 
 let currentProjectSnapshotUnsub = undefined;
 let currentProjectStagesUnsub = undefined;
+let currentProjectTasksUnsub = undefined;
 const subscribeToCurrentProjectUpdates = (projectId) => {
     if (currentProjectSnapshotUnsub) {
         currentProjectSnapshotUnsub();
@@ -313,6 +314,79 @@ const subscribeToStagesUpdate = (projectId) => {
     };
 };
 
+const subscribeToTasksUpdate = (projectId) => {
+    if (currentProjectTasksUnsub) {
+        currentProjectTasksUnsub();
+    };
+
+    return async (dispatch) => {
+        currentProjectTasksUnsub = onSnapshot(collection(db, 'Projects', projectId, 'tasks'), async (snaps) => {
+            if (snaps.docs.length === 0) {
+                dispatch({
+                    type: SET_TASKS,
+                    payload: {
+                        tasks: [],
+                    },
+                })
+            };
+
+            if (snaps.docs.length !== 0) {
+                const updateTasksPromises = snaps.docs.map(async (snap) => {
+                    const task = {...snap.data()};
+                    const dueDate = task.dueDate.toDate().toString();
+
+                    const loadAssignedPromises = task.assignedTo.map(async(mem) => {
+                        const memData = await getDoc(doc(db, 'users', mem));
+                        return {
+                            key: mem,
+                            profile: memData.data().profile.uri,
+                        }
+                    });
+                    const assignedTo = await Promise.all(loadAssignedPromises);
+
+                    const key = snap._key.path.segments[8];
+
+                    return {
+                        ...task,
+                        dueDate: dueDate,
+                        assignedTo: assignedTo,
+                        key: key,
+                    }
+                });
+                const updateTasks = await Promise.all(updateTasksPromises);
+
+                dispatch({
+                    type: SET_TASKS,
+                    payload: {
+                        tasks: updateTasks,
+                    },
+                });
+            };
+        })
+    }
+};
+
+const addTask = (taskName, description, assignedTo, stage, dueDate, attachedLinks, projectId) => {
+    return async (dispatch) => {
+        const newTask = {
+            taskName: taskName,
+            description: description,
+            assignedTo: assignedTo,
+            stage: stage,
+            dueDate: dueDate,
+            attachedLinks: attachedLinks,
+            finished: false,
+        };
+        await addDoc(collection(db, 'Projects', projectId, 'tasks'), newTask);
+    }
+};
+
+const updateTask = (updatedTask, projectId) => {
+  return async (dispatch) => {
+    await updateDoc(doc(db, 'Projects', projectId, 'tasks', updatedTask.key), updatedTask);
+  };
+};
+
 export {
   addUser,
   setUser,
@@ -322,4 +396,7 @@ export {
   addProject,
   subscribeToCurrentProjectUpdates,
   subscribeToStagesUpdate,
+  subscribeToTasksUpdate,
+  addTask,
+  updateTask,
 };

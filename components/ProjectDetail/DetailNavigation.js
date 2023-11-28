@@ -2,10 +2,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
 
 
-function DetailNavigation() {
-    const [selected, setSelected] = useState(0);
-
-    const navigationList = ['Overview', 'Stages', 'Tasks', 'Team'];
+function DetailNavigation({selected, setSelected, navigationList}) {
 
     return (
         <View style={styles.container}>

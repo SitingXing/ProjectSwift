@@ -4,6 +4,7 @@ const LOAD_USERLIST = "LOAD_USERLIST";
 const ADD_PROJECT = "ADD_PROJECT";
 const SET_PROJECT = "SET_PROJECT";
 const SET_STAGES = "SET_STAGES";
+const SET_TASKS = "SET_TASKS";
 
 const initialState = {
     currentUser: {},
@@ -11,6 +12,7 @@ const initialState = {
     userList: [],
     currentProject: {},
     currentProjectStages: [],
+    currentProjectTasks: [],
 };
 
 const _setUser = (state, user) => {
@@ -32,7 +34,14 @@ const _setStages = (state, stages) => {
         ...state,
         currentProjectStages: stages,
     }
-}
+};
+
+const _setTasks = (state, tasks) => {
+    return {
+        ...state,
+        currentProjectTasks: tasks,
+    }
+};
 
 const loadProjects = (state, payload) => {
     return {
@@ -74,9 +83,11 @@ const rootReducer = (state=initialState, action) => {
             return _setProject(state, action.payload.project);
         case SET_STAGES:
             return _setStages(state, action.payload.stages);
+        case SET_TASKS:
+            return _setTasks(state, action.payload.tasks);
         default:
             return state;
     }
 };
 
-export { rootReducer, SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES };
+export { rootReducer, SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES, SET_TASKS };

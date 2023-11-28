@@ -121,7 +121,7 @@ function ProjectCreateScreen({ navigation, route }) {
       <View style={styles.inputArea}>
         <View style={styles.input}>
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
-            Project:
+            Project
           </Text>
           <View style={styles.projectInput}>
             <TouchableOpacity style={styles.logoBtn} onPress={pickImage}>
@@ -153,7 +153,7 @@ function ProjectCreateScreen({ navigation, route }) {
         </View>
         <View style={styles.input}>
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
-            Description:
+            Description
           </Text>
           <Input
             multiline
@@ -171,7 +171,7 @@ function ProjectCreateScreen({ navigation, route }) {
         </View>
         <View style={styles.input}>
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
-            Team members:
+            Team members
           </Text>
           <View style={styles.teamMember}>
             <Image
@@ -202,7 +202,7 @@ function ProjectCreateScreen({ navigation, route }) {
         </View>
         <View style={styles.input}>
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
-            Dates:
+            Dates
           </Text>
           <View style={styles.dateContainer}>
             <TouchableOpacity
@@ -246,7 +246,7 @@ function ProjectCreateScreen({ navigation, route }) {
         </View>
         <View style={styles.input}>
           <Text style={[styles.label, { fontFamily: "Poppins_500Medium" }]}>
-            Stages:
+            Stages
           </Text>
           <ScrollView style={styles.scrollView}>
             <View style={styles.stageList}>

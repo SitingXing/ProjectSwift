@@ -169,9 +169,9 @@ function OverviewPage({ members, currentStage }) {
             setShow={setTasksShow}
           />
           <View style={tasksShow ? "" : { display: "none" }}>
+            {/* <TaskItem />
             <TaskItem />
-            <TaskItem />
-            <TaskItem />
+            <TaskItem /> */}
           </View>
         </View>
       </ScrollView>

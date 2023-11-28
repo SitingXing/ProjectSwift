@@ -13,6 +13,8 @@ import ProjectCreateScreen from "./screens/ProjectCreateScreen";
 import ChatListScreen from "./screens/ChatListScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ProjectDetailScreen from "./screens/ProjectDetailScreen";
+import TaskCreateScreen from "./screens/TaskCreateScreen";
+import TaskDetailScreen from "./screens/TaskDetailScreen";
 
 
 const store = configureStore({
@@ -169,6 +171,8 @@ function AppContainer() {
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Home" component={TabsStack} />
                     <Stack.Screen name="ProjectCreate" component={ProjectCreateScreen} />
+                    <Stack.Screen name="TaskCreate" component={TaskCreateScreen} />
+                    <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>
