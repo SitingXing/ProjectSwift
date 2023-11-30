@@ -5,6 +5,7 @@ const ADD_PROJECT = "ADD_PROJECT";
 const SET_PROJECT = "SET_PROJECT";
 const SET_STAGES = "SET_STAGES";
 const SET_TASKS = "SET_TASKS";
+const SET_COMMENTS = "SET_COMMENTS";
 
 const initialState = {
     currentUser: {},
@@ -13,6 +14,7 @@ const initialState = {
     currentProject: {},
     currentProjectStages: [],
     currentProjectTasks: [],
+    currentProjectComments: [],
 };
 
 const _setUser = (state, user) => {
@@ -40,6 +42,13 @@ const _setTasks = (state, tasks) => {
     return {
         ...state,
         currentProjectTasks: tasks,
+    }
+};
+
+const _setComments = (state, comments) => {
+    return {
+        ...state,
+        currentProjectComments: comments,
     }
 };
 
@@ -85,9 +94,11 @@ const rootReducer = (state=initialState, action) => {
             return _setStages(state, action.payload.stages);
         case SET_TASKS:
             return _setTasks(state, action.payload.tasks);
+        case SET_COMMENTS:
+            return _setComments(state, action.payload.comments);
         default:
             return state;
     }
 };
 
-export { rootReducer, SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES, SET_TASKS };
+export { rootReducer, SET_USER, LOAD_PROJECTS, LOAD_USERLIST, ADD_PROJECT, SET_PROJECT, SET_STAGES, SET_TASKS, SET_COMMENTS };

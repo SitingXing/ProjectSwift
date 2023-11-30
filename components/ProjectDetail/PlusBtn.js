@@ -28,6 +28,15 @@ function PlusBtn({ navigation, members, stages, projectId }) {
               members: members,
               stages: stages,
               projectId: projectId,
+              task: {
+                key: -1,
+                taskName: '',
+                description: '',
+                selectedMembers: [...members],
+                stage: {},
+                due: new Date().toString(),
+                links: [],
+              }
             })}
           >
             <Icon type="octicon" name="plus" size={24} color="#C4E868" />

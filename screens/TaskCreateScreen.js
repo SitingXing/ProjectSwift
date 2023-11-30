@@ -2,25 +2,26 @@ import { View, StyleSheet, TouchableOpacity, Text, Image, ScrollView } from "rea
 import { Icon, Input, Overlay } from "@rneui/themed";
 import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import AttachedLinks from "../components/ProjectDetail/AttachedLinks";
-import { addTask } from "../data/Actions";
+import { addTask, updateTask } from "../data/Actions";
 
 
 function TaskCreateScreen({route, navigation}) {
-    const {members, stages, projectId} = route.params;
+    const {projectId, task} = route.params;
     const dispatch = useDispatch();
-    const [taskName, setTaskName] = useState('');
-    const [description, setDescription] = useState('');
-    const [selectedMembers, setSelectedMembers] = useState([...members]);
+    const stages = useSelector(state => state.currentProjectStages);
+    const [taskName, setTaskName] = useState(task.taskName);
+    const [description, setDescription] = useState(task.description);
+    const [selectedMembers, setSelectedMembers] = useState(task.selectedMembers);
     const [overlayShow, setOverlayShow] = useState(false);
-    const [selectedStage, setSelectedStage] = useState({});
-    const [stage, setStage] = useState({});
+    const [selectedStage, setSelectedStage] = useState(task.stage);
+    const [stage, setStage] = useState(task.stage);
     const [selectorShow, setSelectorShow] = useState(false);
-    const [due, setDue] = useState(new Date());
+    const [due, setDue] = useState(new Date(task.due));
     const [showDue, setShowDue] = useState(false);
-    const [links, setLinks] = useState([]);
+    const [links, setLinks] = useState(task.links);
 
     const selectMember = (item) => {
         const list = [...selectedMembers];
@@ -57,7 +58,22 @@ function TaskCreateScreen({route, navigation}) {
     const saveTask = () => {
         const selected = selectedMembers.filter(member => member.selected === true);
         const members = selected.map(member => member.key);
-        dispatch(addTask(taskName, description, members, stage.key, due, links, projectId));
+        const updatedTask = {
+            assignedTo: members,
+            attachedLinks: links,
+            description: description,
+            dueDate: due,
+            finished: task.finished,
+            stage: stage.key,
+            taskName: taskName,
+        };
+        if (task.key === -1) {
+            dispatch(addTask(taskName, description, members, stage.key, due, links, projectId));
+            navigation.navigate('Home', {screen: 'Projects'});
+        } else {
+            dispatch(updateTask(updatedTask, task.key, projectId));
+            navigation.navigate('Home', {screen: 'Projects'});
+        };
     };
 
     return (
@@ -74,7 +90,7 @@ function TaskCreateScreen({route, navigation}) {
                     />
                 </TouchableOpacity>
                 <Text style={[styles.header, { fontFamily: "Poppins_600SemiBold" }]}>
-                    New Task
+                    {task.key === -1 ? 'New Task' : 'Edit Task'}
                 </Text>
             </View>
             {/* Input */}
@@ -184,7 +200,7 @@ function TaskCreateScreen({route, navigation}) {
                         onPress={() => setShowDue(true)}
                     >
                         <Text style={[styles.date, { fontFamily: "Poppins_400Regular" }]}>
-                            {due.toLocaleDateString()}
+                            {new Date(due).toLocaleDateString()}
                         </Text>
                     </TouchableOpacity>
                     {showDue && (
@@ -203,7 +219,7 @@ function TaskCreateScreen({route, navigation}) {
                     </Text>
                     <View style={styles.linksContainer}>
                         {links.map((link, index) =>
-                            <AttachedLinks key={index} handleLinkNameInput={(text) => handleLinkNameInput(index, text)} handleLinkInput={(text) => handleLinkInput(index, text)} />)}
+                            <AttachedLinks key={index} handleLinkNameInput={(text) => handleLinkNameInput(index, text)} handleLinkInput={(text) => handleLinkInput(index, text)} link={link} />)}
                         <TouchableOpacity
                             onPress={handleLinksPlus}
                         >
@@ -224,11 +240,10 @@ function TaskCreateScreen({route, navigation}) {
                     style={styles.createBtn}
                     onPress={() => {
                         saveTask();
-                        navigation.goBack();
                     }}
                 >
                     <Text style={[styles.btnText, { fontFamily: "Poppins_600SemiBold" }]}>
-                        Add New Task
+                        {task.key === -1 ? 'Add New Task' : 'Save Edited Task'}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -294,7 +309,7 @@ function TaskCreateScreen({route, navigation}) {
                     Stage
                 </Text>
                 <ScrollView>
-                    {stages.sort((a, b) => new Date(a.startDate) - new Date(b.startDate)).map((s, index) => {
+                    {[...stages].sort((a, b) => new Date(a.startDate) - new Date(b.startDate)).map((s, index) => {
                         return (
                             <TouchableOpacity
                                 key={index}

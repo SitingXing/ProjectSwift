@@ -94,6 +94,7 @@ function TasksPage({ tasks, projectId, navigation }) {
         {tasksList.map((task, index) => {
           return (
             <TaskItem
+              tasks={tasks}
               key={index}
               task={task}
               projectId={projectId}

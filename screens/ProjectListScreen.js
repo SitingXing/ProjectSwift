@@ -72,10 +72,13 @@ const styles = StyleSheet.create({
   },
   projectList: {
     marginTop: 30,
+    marginHorizontal: 20,
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
-    justifyContent: "space-evenly",
+    justifyContent: "flex-start",
+    rowGap: 20,
+    columnGap: 20,
   },
   addBtn: {
     height: 175,

@@ -2,9 +2,9 @@ import { View, StyleSheet } from "react-native";
 import { Input } from "@rneui/themed";
 import { useState } from "react";
 
-function AttachedLinks({handleLinkNameInput, handleLinkInput}) {
-    const [name, setName] = useState('');
-    const [link, setLink] = useState('');
+function AttachedLinks({handleLinkNameInput, handleLinkInput, link}) {
+    const [name, setName] = useState(link.name);
+    const [linkValue, setLinkValue] = useState(link.link);
 
     return (
         <View style={styles.container}>
@@ -33,9 +33,9 @@ function AttachedLinks({handleLinkNameInput, handleLinkInput}) {
                         { fontFamily: "Poppins_400Regular" },
                     ]}
                     placeholder="link"
-                    value={link}
+                    value={linkValue}
                     onChangeText={(text) => {
-                        setLink(text);
+                        setLinkValue(text);
                         handleLinkInput(text);
                     }}
                 />

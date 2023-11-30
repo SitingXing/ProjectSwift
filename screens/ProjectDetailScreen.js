@@ -8,6 +8,7 @@ import DetailNavigation from "../components/ProjectDetail/DetailNavigation";
 import OverviewPage from "../components/ProjectDetail/OverviewPage";
 import PlusBtn from "../components/ProjectDetail/PlusBtn";
 import {
+  subscribeToCommentsUpdate,
   subscribeToCurrentProjectUpdates,
   subscribeToStagesUpdate,
   subscribeToTasksUpdate,
@@ -31,6 +32,7 @@ function ProjectDetailScreen({ route, navigation }) {
     dispatch(subscribeToCurrentProjectUpdates(projectId));
     dispatch(subscribeToStagesUpdate(projectId));
     dispatch(subscribeToTasksUpdate(projectId));
+    dispatch(subscribeToCommentsUpdate(projectId, currentProjectTasks));
   }, []);
 
   if (!currentProject.basicInfo) {
@@ -48,7 +50,7 @@ function ProjectDetailScreen({ route, navigation }) {
     <View style={styles.container}>
       {/* header */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
             style={styles.backIcon}
             name="chevron-back"

@@ -5,19 +5,22 @@ import { useDispatch } from "react-redux";
 
 import { updateTask } from "../../data/Actions";
 
-function TaskItem({ task, projectId, navigation }) {
+function TaskItem({ tasks, task, projectId, navigation }) {
   const dispatch = useDispatch();
   const [overlayShow, setOverlayShow] = useState(false);
 
   const handleBtn = () => {
     const assignedTo = task.assignedTo.map((mem) => mem.key);
     const updatedTask = {
-      ...task,
       finished: !task.finished,
       dueDate: new Date(task.dueDate),
       assignedTo: assignedTo,
+      attachedLinks: task.attachedLinks,
+      description: task.description,
+      stage: task.stage.key,
+      taskName: task.taskName,
     };
-    dispatch(updateTask(updatedTask, projectId));
+    dispatch(updateTask(updatedTask, task.key, projectId));
     setOverlayShow(false);
   };
 
@@ -41,7 +44,7 @@ function TaskItem({ task, projectId, navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.contentContainer}
-        onPress={() => navigation.navigate("TaskDetail", {task: task})}
+        onPress={() => navigation.navigate("TaskDetail", {task: task, projectId: projectId, tasks: tasks})}
       >
         <View style={styles.contentBox}>
           <Text style={[styles.title, { fontFamily: "Poppins_500Medium" }]}>

@@ -83,6 +83,7 @@ function ProjectCreateScreen({ navigation, route }) {
     const savedMembers = selected.map(member => member.key);
     const members = savedMembers.concat(currentUser.key);
     dispatch(addProject(projectLogo.uri, projectName, description, members, startDate, endDate, stages));
+    navigation.goBack();
   };
 
   useEffect(() => {
