@@ -247,6 +247,84 @@ const addProject = (
   };
 };
 
+const updateProject = (updatedProject, projectId, userList) => {
+  return async (dispatch) => {
+    if (Object.keys(updatedProject).includes("stages")) {
+      const promises = updatedProject.stages.map(async (stage) => {
+        if (stage.key) {
+          const ref = doc(db, "Projects", projectId, "stages", stage.key);
+          const newStage = {
+            endDate: new Date(stage.endDate),
+            stageName: stage.stageName,
+            startDate: new Date(stage.startDate),
+          };
+          await updateDoc(ref, newStage);
+        } else {
+          const ref = collection(db, "Projects", projectId, "stages");
+          const newStage = {
+            endDate: new Date(stage.endDate),
+            stageName: stage.stageName,
+            startDate: new Date(stage.startDate),
+          };
+          await addDoc(ref, newStage);
+        }
+      });
+      await Promise.all(promises);
+
+      if (updatedProject.deleted.length !== 0) {
+        const deletePromises = updatedProject.deleted.map(async (stage) => {
+          const ref = doc(db, "Projects", projectId, "stages", stage);
+          await deleteDoc(ref);
+        });
+        await Promise.all(deletePromises);
+      }
+    } else {
+      await updateDoc(doc(db, "Projects", projectId), updatedProject);
+
+      if (Object.keys(updatedProject).includes("members")) {
+        const promises = userList.map(async (member) => {
+          const ref = doc(db, "users", member.key);
+          const snap = await getDoc(ref);
+          const projectsList = snap.data().projectsList;
+          if (
+            projectsList.includes(projectId) &&
+            !updatedProject.members.includes(member.key)
+          ) {
+            const newList = projectsList.filter(
+              (project) => project !== projectId
+            );
+            await updateDoc(ref, { projectsList: newList });
+          }
+          if (
+            !projectsList.includes(projectId) &&
+            updatedProject.members.includes(member.key)
+          ) {
+            const newList = projectsList.concat(projectId);
+            await updateDoc(ref, { projectsList: newList });
+          }
+        });
+        await Promise.all(promises);
+      }
+    }
+  };
+};
+
+const deleteProject = (projectId, project) => {
+  return async (dispatch) => {
+    await deleteDoc(doc(db, 'Projects', projectId));
+
+    const members = project.members;
+    const promises = members.map(async (member) => {
+      const ref = doc(db, 'users', member.key);
+      const snap = await getDoc(ref);
+      const projectList = snap.data().projectsList;
+      const newProjectList = [...projectList].filter(project => project !== projectId);
+      await updateDoc(ref, {projectsList: newProjectList});
+    });
+    await Promise.all(promises);
+  };
+};
+
 let currentProjectSnapshotUnsub = undefined;
 let currentProjectStagesUnsub = undefined;
 let currentProjectTasksUnsub = undefined;
@@ -342,29 +420,29 @@ const subscribeToCommentsUpdate = (projectId, tasks) => {
 
     tasks.forEach((task) => {
       const commentsUnsub = onSnapshot(
-        collection(
-          db,
-          'Projects',
-          projectId,
-          'tasks',
-          task.key,
-          'comments'
-        ),
+        collection(db, "Projects", projectId, "tasks", task.key, "comments"),
         async (commentSnaps) => {
-          const commentsPromises = commentSnaps.docs.map(async(commentSnap) => {
-            const createdAt = commentSnap.data().createdAt.toDate().toString();
-            const authorData = await getDoc(doc(db, 'users', commentSnap.data().author));
-            const updateAuthor = {
-              key: commentSnap.data().author,
-              profile: authorData.data().profile.uri,
-              userName: authorData.data().userName,
+          const commentsPromises = commentSnaps.docs.map(
+            async (commentSnap) => {
+              const createdAt = commentSnap
+                .data()
+                .createdAt.toDate()
+                .toString();
+              const authorData = await getDoc(
+                doc(db, "users", commentSnap.data().author)
+              );
+              const updateAuthor = {
+                key: commentSnap.data().author,
+                profile: authorData.data().profile.uri,
+                userName: authorData.data().userName,
+              };
+              return {
+                ...commentSnap.data(),
+                createdAt: createdAt,
+                author: updateAuthor,
+              };
             }
-            return {
-              ...commentSnap.data(),
-              createdAt: createdAt,
-              author: updateAuthor,
-            };
-          });
+          );
           const comments = await Promise.all(commentsPromises);
           const updatedComments = currentProjectComments.map((ele) =>
             ele.taskId === task.key ? { ...ele, comments: comments } : ele
@@ -389,7 +467,7 @@ const subscribeToCommentsUpdate = (projectId, tasks) => {
 const subscribeToTasksUpdate = (projectId) => {
   if (currentProjectTasksUnsub) {
     currentProjectTasksUnsub();
-  };
+  }
 
   return async (dispatch) => {
     currentProjectTasksUnsub = onSnapshot(
@@ -402,7 +480,7 @@ const subscribeToTasksUpdate = (projectId) => {
               tasks: [],
             },
           });
-        };
+        }
 
         if (snaps.docs.length !== 0) {
           const updateTasksPromises = snaps.docs.map(async (snap) => {
@@ -418,30 +496,47 @@ const subscribeToTasksUpdate = (projectId) => {
             });
             const assignedTo = await Promise.all(loadAssignedPromises);
 
-            const stageDate = await getDoc(doc(db, 'Projects', projectId, 'stages', task.stage));
-            const updateStage = {
-              ...stageDate.data(),
-              startDate: stageDate.data().startDate.toDate().toString(),
-              endDate: stageDate.data().endDate.toDate().toString(),
-              key: task.stage,
+            let updateStage;
+            if (task.stage !== "") {
+              const stageDate = await getDoc(
+                doc(db, "Projects", projectId, "stages", task.stage)
+              );
+              updateStage = {
+                ...stageDate.data(),
+                startDate: stageDate.data().startDate.toDate().toString(),
+                endDate: stageDate.data().endDate.toDate().toString(),
+                key: task.stage,
+              };
+            } else {
+              updateStage = {};
+            };
+
+            const edited = task.edited;
+            const updatedEdited = {
+              ...edited,
+              time: edited.time.toDate().toString(),
             };
 
             let key;
             if (snap._key.path.segments[8]) {
               key = snap._key.path.segments[8];
             } else {
-              key = snap._key.path.segments[3]
-            };
+              key = snap._key.path.segments[3];
+            }
 
-            const commentsDoc = await getDocs(collection(db, 'Projects', projectId, 'tasks', key, 'comments'));
-            const commentsPromises = commentsDoc.docs.map(async(comment) => {
+            const commentsDoc = await getDocs(
+              collection(db, "Projects", projectId, "tasks", key, "comments")
+            );
+            const commentsPromises = commentsDoc.docs.map(async (comment) => {
               const createdAt = comment.data().createdAt.toDate().toString();
-              const authorData = await getDoc(doc(db, 'users', comment.data().author));
+              const authorData = await getDoc(
+                doc(db, "users", comment.data().author)
+              );
               const updateAuthor = {
                 key: comment.data().author,
                 profile: authorData.data().profile.uri,
                 userName: authorData.data().userName,
-              }
+              };
               return {
                 ...comment.data(),
                 createdAt: createdAt,
@@ -457,6 +552,7 @@ const subscribeToTasksUpdate = (projectId) => {
               stage: updateStage,
               key: key,
               comments: comments,
+              edited: updatedEdited,
             };
           });
           const updateTasks = await Promise.all(updateTasksPromises);
@@ -477,10 +573,10 @@ const subscribeToTasksUpdate = (projectId) => {
           dispatch({
             type: SET_COMMENTS,
             payload: {
-              comments: updateComments,
+              comments: [...updateComments],
             },
           });
-        };
+        }
       }
     );
   };
@@ -504,6 +600,10 @@ const addTask = (
       dueDate: dueDate,
       attachedLinks: attachedLinks,
       finished: false,
+      edited: {
+        time: new Date(),
+        type: 'create',
+      }
     };
     await addDoc(collection(db, "Projects", projectId, "tasks"), newTask);
   };
@@ -511,17 +611,23 @@ const addTask = (
 
 const updateTask = (updatedTask, taskId, projectId) => {
   return async (dispatch) => {
-    console.log(projectId)
+    const updates = {
+      ...updatedTask,
+      edited: {
+        time: new Date(),
+        type: 'change',
+      }
+    };
     await updateDoc(
       doc(db, "Projects", projectId, "tasks", taskId),
-      updatedTask
+      updates
     );
   };
 };
 
 const deleteTask = (taskId, projectId) => {
   return async (dispatch) => {
-    await deleteDoc(doc(db, 'Projects', projectId, 'tasks', taskId));
+    await deleteDoc(doc(db, "Projects", projectId, "tasks", taskId));
   };
 };
 
@@ -550,6 +656,8 @@ export {
   unsubscribeFromProjects,
   setUserList,
   addProject,
+  updateProject,
+  deleteProject,
   subscribeToCurrentProjectUpdates,
   subscribeToStagesUpdate,
   subscribeToTasksUpdate,

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import ProjectStageItem from "../components/ProjectStageItem";
 import { setUserList, addProject } from "../data/Actions";
+import { getDayEndDate, getDayStartDate } from "../DateSet";
 
 function ProjectCreateScreen({ navigation, route }) {
   const { currentUser } = route.params;
@@ -17,9 +18,9 @@ function ProjectCreateScreen({ navigation, route }) {
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [showstart, setShowstart] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(getDayStartDate(new Date()));
   const [showend, setShowend] = useState(false);
-  const [endDate, setEndDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(getDayEndDate(new Date()));
   const [overlayShow, setOverlayShow] = useState(false);
 
   const [selectedMembers, setSelectedMembers] = useState([]);
@@ -48,8 +49,8 @@ function ProjectCreateScreen({ navigation, route }) {
   const handleStagePlus = () => {
     const newStage = {
       title: "",
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: getDayStartDate(new Date()),
+      endDate: getDayEndDate(new Date()),
     };
     setStages([...stages, newStage]);
   };
@@ -65,7 +66,7 @@ function ProjectCreateScreen({ navigation, route }) {
   const handleStageStartInput = (index, date) => {
     const newStages = [...stages];
     const newStage = { ...newStages[index] };
-    newStage.startDate = date;
+    newStage.startDate = getDayStartDate(date);
     newStages[index] = newStage;
     setStages(newStages);
   };
@@ -73,7 +74,7 @@ function ProjectCreateScreen({ navigation, route }) {
   const handleStageEndInput = (index, date) => {
     const newStages = [...stages];
     const newStage = { ...newStages[index] };
-    newStage.endDate = date;
+    newStage.endDate = getDayEndDate(date);
     newStages[index] = newStage;
     setStages(newStages);
   };
@@ -218,7 +219,7 @@ function ProjectCreateScreen({ navigation, route }) {
               <DateTimePicker
                 value={startDate}
                 onChange={(event, selectedDate) => {
-                  setStartDate(selectedDate);
+                  setStartDate(getDayStartDate(selectedDate));
                   setShowstart(false);
                 }}
               />
@@ -238,7 +239,7 @@ function ProjectCreateScreen({ navigation, route }) {
               <DateTimePicker
                 value={endDate}
                 onChange={(event, selectedDate) => {
-                  setEndDate(selectedDate);
+                  setEndDate(getDayEndDate(selectedDate));
                   setShowend(false);
                 }}
               />

@@ -10,8 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { Icon } from "@rneui/themed";
 
-import { subscribeToProjectsUpdates } from "../data/Actions";
-import { getAuthUser } from "../AuthManager";
+import { subscribeToProjectsUpdates, setUserList } from "../data/Actions";
 import ProjectListItem from "../components/ProjectListItem";
 
 function ProjectListScreen({ navigation }) {
@@ -34,7 +33,12 @@ function ProjectListScreen({ navigation }) {
       </View>
       <View style={styles.projectList}>
         {projects.map((item, index) => (
-          <ProjectListItem key={index} item={item} navigation={navigation} />
+          <ProjectListItem
+            key={index}
+            item={item}
+            navigation={navigation}
+            currentUser={currentUser}
+          />
         ))}
         <TouchableOpacity
           style={styles.addBtn}

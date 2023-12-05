@@ -1,12 +1,16 @@
 import { View, TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 import { Icon } from "@rneui/themed";
 
-function ProjectListItem({ item, navigation }) {
-
+function ProjectListItem({ item, navigation, currentUser }) {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate("ProjectDatail", {projectId: item.key})}
+      onPress={() =>
+        navigation.navigate("ProjectDatail", {
+          projectId: item.key,
+          currentUser: currentUser,
+        })
+      }
     >
       <View style={styles.dateContainer}>
         <Icon name="flag" type="ionicon" size={16} color="white" />
@@ -14,10 +18,7 @@ function ProjectListItem({ item, navigation }) {
           {item.endDate}
         </Text>
       </View>
-      <Image
-        style={styles.icon}
-        source={{uri: item.logo}}
-      />
+      <Image style={styles.icon} source={{ uri: item.logo }} />
       <Text style={[styles.name, { fontFamily: "Poppins_600SemiBold" }]}>
         {item.name}
       </Text>

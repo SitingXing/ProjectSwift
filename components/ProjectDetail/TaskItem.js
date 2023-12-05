@@ -44,13 +44,26 @@ function TaskItem({ tasks, task, projectId, navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.contentContainer}
-        onPress={() => navigation.navigate("TaskDetail", {task: task, projectId: projectId, tasks: tasks})}
+        onPress={() =>
+          navigation.navigate("TaskDetail", {
+            task: task,
+            projectId: projectId,
+            tasks: tasks,
+          })
+        }
       >
         <View style={styles.contentBox}>
           <Text style={[styles.title, { fontFamily: "Poppins_500Medium" }]}>
             {task.taskName}
           </Text>
-          <Text style={[styles.content, { fontFamily: "Poppins_400Regular" }]}>
+          <Text
+            style={
+              !task.finished &&
+              new Date(task.dueDate).getTime() < new Date().getTime()
+                ? [styles.contentPassed, { fontFamily: "Poppins_400Regular" }]
+                : [styles.content, { fontFamily: "Poppins_400Regular" }]
+            }
+          >
             {new Date(task.dueDate).toLocaleDateString()}
           </Text>
         </View>
@@ -143,7 +156,7 @@ const styles = StyleSheet.create({
   },
   contentPassed: {
     fontSize: 13,
-    color: "red",
+    color: "#F06060",
   },
   contentContainer: {
     width: "85%",

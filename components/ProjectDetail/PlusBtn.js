@@ -1,72 +1,129 @@
-import { View, StyleSheet, TouchableOpacity, Text, Modal } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Dimensions,
+} from "react-native";
 import { Icon, Overlay } from "@rneui/themed";
 import { useState } from "react";
+import AddMemberOverlay from "./AddMemberOverlay";
+import { getDayEndDate } from "../../DateSet";
 
-function PlusBtn({ navigation, members, stages, projectId }) {
+function PlusBtn({ navigation, members, stages, projectId, userList }) {
   const [overlayShow, setOverlayShow] = useState(false);
+  const [plusShow, setPlusShow] = useState(true);
+  const [memberShow, setMemberShow] = useState(false);
+
+  const screenHeight = Dimensions.get("window").height;
+  const plusPosition = (screenHeight * 2.1) / 3;
+  const minusPosition = plusPosition - 40 - 22.5;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={() => setOverlayShow(!overlayShow)}
-      >
-        <Icon type="octicon" name="plus" size={36} color="#265504" />
-      </TouchableOpacity>
+      {plusShow && (
+        <TouchableOpacity
+          style={[styles.btn, { top: plusPosition }]}
+          onPress={() => {
+            setPlusShow(false);
+            setOverlayShow(!overlayShow);
+          }}
+        >
+          <Icon type="octicon" name="plus" size={36} color="#265504" />
+        </TouchableOpacity>
+      )}
       <Overlay
         isVisible={overlayShow}
         onBackdropPress={() => {
           setOverlayShow(false);
+          setPlusShow(true);
         }}
-        overlayStyle={styles.overlayStyle}
+        overlayStyle={[styles.overlayStyle, { top: minusPosition }]}
         animationType="fade"
       >
         <View style={styles.plusContainer}>
           <TouchableOpacity
             style={styles.plusItem}
-            onPress={() => navigation.navigate("TaskCreate", {
-              members: members,
-              stages: stages,
-              projectId: projectId,
-              task: {
-                key: -1,
-                taskName: '',
-                description: '',
-                selectedMembers: [...members],
-                stage: {},
-                due: new Date().toString(),
-                links: [],
-              }
-            })}
+            onPress={() => {
+              navigation.navigate("TaskCreate", {
+                members: members,
+                stages: stages,
+                projectId: projectId,
+                task: {
+                  key: -1,
+                  taskName: "",
+                  description: "",
+                  selectedMembers: [...members],
+                  stage: {},
+                  due: getDayEndDate(new Date()).toString(),
+                  links: [],
+                },
+              });
+              setPlusShow(true);
+              setOverlayShow(false);
+            }}
           >
             <Icon type="octicon" name="plus" size={24} color="#C4E868" />
             <Text style={[styles.text, { fontFamily: "Poppins_500Medium" }]}>
               New Task
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.plusItem}>
+          <TouchableOpacity
+            style={styles.plusItem}
+            onPress={() => {
+              setPlusShow(true);
+              setOverlayShow(false);
+              navigation.navigate("StagesEdit", {
+                stages: [...stages],
+                projectId: projectId,
+                userList: userList,
+              });
+            }}
+          >
             <Icon type="octicon" name="plus" size={24} color="#C4E868" />
             <Text style={[styles.text, { fontFamily: "Poppins_500Medium" }]}>
-              New Stage
+              Edit Stages
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.plusItem}
+            onPress={() => {
+              setOverlayShow(false);
+              setPlusShow(true);
+              setMemberShow(true);
+            }}
+          >
+            <Icon type="octicon" name="plus" size={24} color="#C4E868" />
+            <Text style={[styles.text, { fontFamily: "Poppins_500Medium" }]}>
+              Edit Members
             </Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity
           style={styles.openedBtn}
-          onPress={() => setOverlayShow(!overlayShow)}
+          onPress={() => {
+            setPlusShow(true);
+            setOverlayShow(!overlayShow);
+          }}
         >
           <Icon type="octicon" name="dash" size={36} color="#265504" />
         </TouchableOpacity>
       </Overlay>
+      <AddMemberOverlay
+        show={memberShow}
+        setShow={setMemberShow}
+        userList={userList}
+        members={members}
+        projectId={projectId}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   btn: {
-    position: 'absolute',
+    position: "absolute",
     right: 15,
-    top: 592.5,
     width: 65,
     height: 65,
     borderRadius: 65,
@@ -77,8 +134,7 @@ const styles = StyleSheet.create({
   overlayStyle: {
     position: "absolute",
     right: 27.5,
-    bottom: "21%",
-    height: 90,
+    height: 125,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 12.5,
