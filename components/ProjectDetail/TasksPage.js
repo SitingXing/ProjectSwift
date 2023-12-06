@@ -90,19 +90,21 @@ function TasksPage({ tasks, projectId, navigation }) {
         })}
       </View>
       {/* List */}
-      <ScrollView>
-        {tasksList.map((task, index) => {
-          return (
-            <TaskItem
-              tasks={tasks}
-              key={index}
-              task={task}
-              projectId={projectId}
-              navigation={navigation}
-            />
-          );
-        })}
-      </ScrollView>
+      <View style={styles.scroll}>
+        <ScrollView>
+          {tasksList.map((task, index) => {
+            return (
+              <TaskItem
+                tasks={tasks}
+                key={index}
+                task={task}
+                projectId={projectId}
+                navigation={navigation}
+              />
+            );
+          })}
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -142,6 +144,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "white",
     marginTop: 2,
+  },
+  scroll: {
+    height: '82.5%',
   },
 });
 

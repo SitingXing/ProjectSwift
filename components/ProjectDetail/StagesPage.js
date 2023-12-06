@@ -92,12 +92,11 @@ function StagesPage({ stages, project, navigation, projectId }) {
     const currentDate = new Date(stage.startDate);
     currentDate.setDate(currentDate.getDate() + 1);
 
-    while (currentDate < end) {
+    while (new Date(formatDate(currentDate)) < new Date(formatDate(end))) {
       const formattedDate = formatDate(currentDate);
       markedDates[formattedDate] = {
         color: "#C4E868",
         textColor: "#265504",
-        disabled: true,
       };
       currentDate.setDate(currentDate.getDate() + 1);
     }

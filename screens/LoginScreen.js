@@ -75,6 +75,8 @@ function SigninBox({ setLoginMode, navigation }) {
             try {
               await signIn(email, password);
               dispatch(setUser(getAuthUser()));
+              setEmail('');
+              setPassword('');
             } catch (error) {
               Alert.alert("Sign Up Error", "Invalid email and password", [
                 { text: "OK" },
@@ -213,6 +215,9 @@ function SignupBox({ setLoginMode, dispatch, navigation }) {
             const newUser = await signUp(userName, email, password);
             await dispatch(addUser(newUser, profile));
             navigation.navigate('Home');
+            setEmail('');
+            setPassword('');
+            setUserName('');
           }}
         >
           <Text
@@ -251,7 +256,7 @@ function SignupBox({ setLoginMode, dispatch, navigation }) {
 function LoginScreen({ navigation }) {
   const [loginMode, setLoginMode] = useState(true);
 
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   return (
     <View style={styles.container}>

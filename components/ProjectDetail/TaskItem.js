@@ -119,6 +119,7 @@ function TaskItem({ tasks, task, projectId, navigation }) {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    backgroundColor: 'white',
     borderWidth: 1,
     borderColor: "#DFDFDF",
     borderRadius: 10,

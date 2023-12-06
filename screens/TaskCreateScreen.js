@@ -375,82 +375,84 @@ function TaskCreateScreen({ route, navigation }) {
         >
           Stage
         </Text>
-        <ScrollView>
-          {[...stages]
-            .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
-            .map((s, index) => {
-              return (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.options}
-                  onPress={() => setSelectedStage(s)}
-                >
-                  <Text
-                    style={
-                      s.key === selectedStage.key
-                        ? [
-                            styles.stageNameSelected,
-                            { fontFamily: "Poppins_500Medium" },
-                          ]
-                        : [
-                            styles.stageName,
-                            { fontFamily: "Poppins_500Medium" },
-                          ]
-                    }
+        <View style={styles.stageSelectionScroll}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {[...stages]
+              .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+              .map((s, index) => {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.options}
+                    onPress={() => setSelectedStage(s)}
                   >
-                    {s.stageName}
-                  </Text>
-                  <View style={styles.optionDates}>
                     <Text
                       style={
                         s.key === selectedStage.key
                           ? [
-                              styles.dateTextSelected,
-                              { fontFamily: "Poppins_400Regular" },
+                              styles.stageNameSelected,
+                              { fontFamily: "Poppins_500Medium" },
                             ]
                           : [
-                              styles.dateText,
-                              { fontFamily: "Poppins_400Regular" },
+                              styles.stageName,
+                              { fontFamily: "Poppins_500Medium" },
                             ]
                       }
                     >
-                      {new Date(s.startDate).toLocaleDateString()}
+                      {s.stageName}
                     </Text>
-                    <Text
-                      style={
-                        s.key === selectedStage.key
-                          ? [
-                              styles.dateTextSelected,
-                              { fontFamily: "Poppins_400Regular" },
-                            ]
-                          : [
-                              styles.dateText,
-                              { fontFamily: "Poppins_400Regular" },
-                            ]
-                      }
-                    >
-                      to
-                    </Text>
-                    <Text
-                      style={
-                        s.key === selectedStage.key
-                          ? [
-                              styles.dateTextSelected,
-                              { fontFamily: "Poppins_400Regular" },
-                            ]
-                          : [
-                              styles.dateText,
-                              { fontFamily: "Poppins_400Regular" },
-                            ]
-                      }
-                    >
-                      {new Date(s.endDate).toLocaleDateString()}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-        </ScrollView>
+                    <View style={styles.optionDates}>
+                      <Text
+                        style={
+                          s.key === selectedStage.key
+                            ? [
+                                styles.dateTextSelected,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                            : [
+                                styles.dateText,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                        }
+                      >
+                        {new Date(s.startDate).toLocaleDateString()}
+                      </Text>
+                      <Text
+                        style={
+                          s.key === selectedStage.key
+                            ? [
+                                styles.dateTextSelected,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                            : [
+                                styles.dateText,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                        }
+                      >
+                        to
+                      </Text>
+                      <Text
+                        style={
+                          s.key === selectedStage.key
+                            ? [
+                                styles.dateTextSelected,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                            : [
+                                styles.dateText,
+                                { fontFamily: "Poppins_400Regular" },
+                              ]
+                        }
+                      >
+                        {new Date(s.endDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+          </ScrollView>
+        </View>
         <TouchableOpacity
           style={styles.overlayBtn}
           onPress={() => {
@@ -675,6 +677,9 @@ const styles = StyleSheet.create({
   selectedName: {
     color: "#265504",
     fontSize: 16,
+  },
+  stageSelectionScroll: {
+    height: "70%",
   },
   options: {
     height: 50,

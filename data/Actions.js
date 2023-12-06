@@ -23,6 +23,7 @@ import {
   SET_STAGES,
   SET_TASKS,
   SET_COMMENTS,
+  SET_USER_TASKS,
 } from "./Reducer";
 
 let app;
@@ -329,6 +330,7 @@ let currentProjectSnapshotUnsub = undefined;
 let currentProjectStagesUnsub = undefined;
 let currentProjectTasksUnsub = undefined;
 let currentTaskCommentsUnsub = undefined;
+let currentUserTasksUnsub = undefined;
 const subscribeToCurrentProjectUpdates = (projectId) => {
   if (currentProjectSnapshotUnsub) {
     currentProjectSnapshotUnsub();
@@ -377,6 +379,13 @@ const subscribeToCurrentProjectUpdates = (projectId) => {
   };
 };
 
+const unsubscribeFromCurrentProjectUpdates = () => {
+  if (currentProjectSnapshotUnsub) {
+    currentProjectSnapshotUnsub();
+    currentProjectSnapshotUnsub = undefined;
+  };
+};
+
 const subscribeToStagesUpdate = (projectId) => {
   if (currentProjectStagesUnsub) {
     currentProjectStagesUnsub();
@@ -409,10 +418,17 @@ const subscribeToStagesUpdate = (projectId) => {
   };
 };
 
+const unsubscribeFromStageUpdate = () => {
+  if (currentProjectStagesUnsub) {
+    currentProjectStagesUnsub();
+    currentProjectSnapshotUnsub = undefined;
+  };
+};
+
 const subscribeToCommentsUpdate = (projectId, tasks) => {
-  // if (currentTaskCommentsUnsub) {
-  //   currentTaskCommentsUnsub();
-  // };
+  if (currentTaskCommentsUnsub) {
+    currentTaskCommentsUnsub.forEach(unsub => unsub());
+  };
 
   return async (dispatch, getState) => {
     const commentsUnsubFunctions = [];
@@ -459,8 +475,14 @@ const subscribeToCommentsUpdate = (projectId, tasks) => {
       commentsUnsubFunctions.push(commentsUnsub);
     });
 
-    // Save the array of comments unsub functions
     currentTaskCommentsUnsub = commentsUnsubFunctions;
+  };
+};
+
+const unsubscribeFromCommentsUpdate = () => {
+  if (currentTaskCommentsUnsub) {
+    currentTaskCommentsUnsub.forEach(unsub => unsub());
+    currentTaskCommentsUnsub = undefined;
   };
 };
 
@@ -582,6 +604,82 @@ const subscribeToTasksUpdate = (projectId) => {
   };
 };
 
+const unsubscribeFromTasksUpdate = () => {
+  if (currentProjectTasksUnsub) {
+    currentProjectTasksUnsub();
+    currentProjectTasksUnsub = undefined;
+  };
+};
+
+const subscribeToCurrentUserTasks = (projects, userId) => {
+  if (currentUserTasksUnsub) {
+    currentUserTasksUnsub.forEach(unsub => unsub());
+  };
+
+  return async (dispatch, getState) => {
+    const userTasksUnsubFunctions = [];
+    const list = getState().currentUserTasks;
+    const newTasksList = [...list];
+
+    projects.forEach((project) => {
+      const userTasksUnsub = onSnapshot(
+        collection(db, 'Projects', project, 'tasks'),
+        async (snapshots) => {
+          const userTasks = [];
+          const tasks = [];
+          snapshots.docs.forEach(async (snap) => {
+            const dueDate = snap.data().dueDate.toDate().toString();
+            const editedTime = snap.data().edited.time.toDate().toString();
+            if (snap.data().assignedTo.includes(userId) && !snap.data().finished) {
+              userTasks.push(snap._key.path.segments[8]);
+            };
+            tasks.push({
+              ...snap.data(),
+              dueDate: dueDate,
+              edited: {
+                ...snap.data().edited,
+                time: editedTime,
+              },
+              key: snap._key.path.segments[8],
+            });
+          });
+
+          const currentUserTasks = {
+            projectId: project,
+            userTasks: userTasks,
+            tasks: tasks,
+          };
+
+          const existingTaskIndex = newTasksList.findIndex((item) => item.projectId === project);
+
+          if (existingTaskIndex !== -1) {
+            newTasksList[existingTaskIndex] = { ...currentUserTasks };
+          } else {
+            newTasksList.push(currentUserTasks);
+          };
+
+          dispatch({
+            type: SET_USER_TASKS,
+            payload: {
+              tasks: [...newTasksList],
+            },
+          });
+        }
+      );
+      userTasksUnsubFunctions.push(userTasksUnsub);
+    });
+
+    currentUserTasksUnsub = userTasksUnsubFunctions;
+  };
+};
+
+const unsubscribeFromCurrentUserTasks = () => {
+  if (currentUserTasksUnsub) {
+    currentUserTasksUnsub.forEach(unsub => unsub());
+    currentUserTasksUnsub = undefined;
+  };
+};
+
 const addTask = (
   taskName,
   description,
@@ -659,9 +757,15 @@ export {
   updateProject,
   deleteProject,
   subscribeToCurrentProjectUpdates,
+  unsubscribeFromCurrentProjectUpdates,
   subscribeToStagesUpdate,
+  unsubscribeFromStageUpdate,
   subscribeToTasksUpdate,
+  unsubscribeFromTasksUpdate,
   subscribeToCommentsUpdate,
+  unsubscribeFromCommentsUpdate,
+  subscribeToCurrentUserTasks,
+  unsubscribeFromCurrentUserTasks,
   addTask,
   updateTask,
   deleteTask,

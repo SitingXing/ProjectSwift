@@ -16,7 +16,7 @@ function PlusBtn({ navigation, members, stages, projectId, userList }) {
   const [memberShow, setMemberShow] = useState(false);
 
   const screenHeight = Dimensions.get("window").height;
-  const plusPosition = (screenHeight * 2.1) / 3;
+  const plusPosition = (screenHeight * 2) / 3;
   const minusPosition = plusPosition - 40 - 22.5;
 
   return (
