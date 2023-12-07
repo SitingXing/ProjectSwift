@@ -2,7 +2,8 @@ import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import { Overlay } from "@rneui/themed";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { updateProject } from "../../data/Actions";
+
+import { updateProject } from "../../../data/Actions";
 
 function AddMemberOverlay({ show, setShow, userList, members, projectId }) {
   const dispatch = useDispatch();

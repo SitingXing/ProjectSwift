@@ -6,11 +6,17 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { Button } from "@rneui/themed";
 import { useSelector } from "react-redux";
 
-import { signOut, getAuthUser } from "../AuthManager";
-import { unsubscribeFromCommentsUpdate, unsubscribeFromCurrentProjectUpdates, unsubscribeFromCurrentUserTasks, unsubscribeFromProjects, unsubscribeFromStageUpdate, unsubscribeFromTasksUpdate } from "../data/Actions";
+import { signOut } from "../AuthManager";
+import {
+  unsubscribeFromCommentsUpdate,
+  unsubscribeFromCurrentProjectUpdates,
+  unsubscribeFromCurrentUserTasks,
+  unsubscribeFromProjects,
+  unsubscribeFromStageUpdate,
+  unsubscribeFromTasksUpdate,
+} from "../data/Actions";
 
 function SettingsScreen() {
   const currentUser = useSelector((state) => state.currentUser);

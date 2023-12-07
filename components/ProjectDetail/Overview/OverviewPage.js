@@ -10,7 +10,7 @@ import * as Progress from "react-native-progress";
 import { useEffect, useState } from "react";
 
 import OverviewLabel from "./OverviewLabel";
-import TaskItem from "./TaskItem";
+import TaskItem from "../Tasks/TaskItem";
 import UpdateComment from "./UpdateComment";
 import UpdateChange from "./UpdateChange";
 
@@ -105,21 +105,25 @@ function OverviewPage({
   const [stageProgress, setStageProgress] = useState(0);
   const [totalProgress, setTotalProgress] = useState(0);
   const calculateStageProgress = () => {
-    const tasksCurrentStage = tasks.filter((task) => task.stage.key && task.stage.key === currentStage.key);
+    const tasksCurrentStage = tasks.filter(
+      (task) => task.stage.key && task.stage.key === currentStage.key
+    );
     const total = tasksCurrentStage.length;
     if (total !== 0) {
-      const finishedTasks = tasksCurrentStage.filter(task => task.finished === true).length;
-      const percentage = finishedTasks / total * 100;
+      const finishedTasks = tasksCurrentStage.filter(
+        (task) => task.finished === true
+      ).length;
+      const percentage = (finishedTasks / total) * 100;
       setStageProgress(Math.round(percentage));
-    };
+    }
   };
   const calculateTotalProgress = () => {
     const total = tasks.length;
     if (total !== 0) {
-      const finished = tasks.filter(task => task.finished).length;
-      const percentage = finished / total * 100;
+      const finished = tasks.filter((task) => task.finished).length;
+      const percentage = (finished / total) * 100;
       setTotalProgress(Math.round(percentage));
-    };
+    }
   };
 
   useEffect(() => {
@@ -158,7 +162,7 @@ function OverviewPage({
               />
               <Progress.Circle
                 style={styles.overlay}
-                progress={stageProgress/100}
+                progress={stageProgress / 100}
                 size={90}
                 color="#C4E868"
                 strokeCap="round"
@@ -177,7 +181,7 @@ function OverviewPage({
               />
               <Progress.Circle
                 style={styles.overlay2}
-                progress={totalProgress/100}
+                progress={totalProgress / 100}
                 size={65}
                 color="#FFD80D"
                 strokeCap="round"

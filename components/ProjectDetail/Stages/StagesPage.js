@@ -9,9 +9,10 @@ import { CalendarList } from "react-native-calendars";
 import { useState, useEffect } from "react";
 import { Overlay, Icon } from "@rneui/themed";
 import { useDispatch, useSelector } from "react-redux";
-import TaskItem from "./TaskItem";
-import { subscribeToTasksUpdate } from "../../data/Actions";
-import { getDayEndDate } from "../../DateSet";
+
+import TaskItem from "../Tasks/TaskItem";
+import { subscribeToTasksUpdate } from "../../../data/Actions";
+import { getDayEndDate } from "../../../DateSet";
 
 function StagesPage({ stages, project, navigation, projectId }) {
   const dispatch = useDispatch();

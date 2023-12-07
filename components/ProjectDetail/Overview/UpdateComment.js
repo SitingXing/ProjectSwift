@@ -1,5 +1,4 @@
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
-import { Icon } from "@rneui/themed";
 
 function UpdateComment({ task, update, navigation, projectId, tasks }) {
   return (

@@ -1,6 +1,12 @@
-import { View, StyleSheet, Text, TouchableOpacity, Image, ScrollView } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Button, Icon, Input, Overlay } from "@rneui/themed";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
+import { Icon, Input, Overlay } from "@rneui/themed";
 import { useEffect, useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
@@ -80,10 +86,22 @@ function ProjectCreateScreen({ navigation, route }) {
   };
 
   const saveProject = () => {
-    const selected = selectedMembers.filter(member => member.selected === true);
-    const savedMembers = selected.map(member => member.key);
+    const selected = selectedMembers.filter(
+      (member) => member.selected === true
+    );
+    const savedMembers = selected.map((member) => member.key);
     const members = savedMembers.concat(currentUser.key);
-    dispatch(addProject(projectLogo.uri, projectName, description, members, startDate, endDate, stages));
+    dispatch(
+      addProject(
+        projectLogo.uri,
+        projectName,
+        description,
+        members,
+        startDate,
+        endDate,
+        stages
+      )
+    );
     navigation.goBack();
   };
 
@@ -258,8 +276,12 @@ function ProjectCreateScreen({ navigation, route }) {
                   handleStageNameInput={(text) =>
                     handleStageNameInput(index, text)
                   }
-                  handleStageStartInput={(date) => handleStageStartInput(index, date)}
-                  handleStageEndInput={(date) => handleStageEndInput(index, date)}
+                  handleStageStartInput={(date) =>
+                    handleStageStartInput(index, date)
+                  }
+                  handleStageEndInput={(date) =>
+                    handleStageEndInput(index, date)
+                  }
                 />
               ))}
             </View>
@@ -277,10 +299,7 @@ function ProjectCreateScreen({ navigation, route }) {
       </View>
       {/* buttons */}
       <View style={styles.btn}>
-        <TouchableOpacity
-            style={styles.createBtn}
-            onPress={saveProject}
-        >
+        <TouchableOpacity style={styles.createBtn} onPress={saveProject}>
           <Text style={[styles.btnText, { fontFamily: "Poppins_600SemiBold" }]}>
             Add New Project
           </Text>

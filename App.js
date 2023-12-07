@@ -17,7 +17,5 @@ export default function App() {
     return null;
   }
 
-  return (
-    <AppContainer />
-  );
+  return <AppContainer />;
 }

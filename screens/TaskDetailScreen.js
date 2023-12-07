@@ -15,10 +15,8 @@ import {
   addComment,
   deleteTask,
   subscribeToCommentsUpdate,
-  subscribeToCurrentProjectUpdates,
-  subscribeToTasksUpdate,
 } from "../data/Actions";
-import TaskItemComment from "../components/ProjectDetail/TaskItemComment";
+import TaskItemComment from "../components/ProjectDetail/Tasks/TaskItemComment";
 
 function TaskDetailScreen({ route, navigation }) {
   const { task, projectId, tasks } = route.params;
@@ -95,8 +93,6 @@ function TaskDetailScreen({ route, navigation }) {
   useEffect(() => {
     dispatch(subscribeToCommentsUpdate(projectId, tasks));
   }, []);
-
-  console.log(currentProject)
 
   return (
     <View>
@@ -430,7 +426,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   overlayContainer: {
-    height: "40%",
+    height: 350,
     width: "80%",
     borderRadius: 10,
     paddingVertical: 20,

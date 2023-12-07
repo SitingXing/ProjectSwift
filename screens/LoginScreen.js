@@ -11,9 +11,13 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 
-import { getAuthUser, signIn, signUp, subscribeToAuthChanges } from "../AuthManager";
+import {
+  getAuthUser,
+  signIn,
+  signUp,
+  subscribeToAuthChanges,
+} from "../AuthManager";
 import { addUser, setUser } from "../data/Actions";
-import { useSelector } from "react-redux";
 
 function SigninBox({ setLoginMode, navigation }) {
   const [email, setEmail] = useState("");
@@ -75,8 +79,8 @@ function SigninBox({ setLoginMode, navigation }) {
             try {
               await signIn(email, password);
               dispatch(setUser(getAuthUser()));
-              setEmail('');
-              setPassword('');
+              setEmail("");
+              setPassword("");
             } catch (error) {
               Alert.alert("Sign Up Error", "Invalid email and password", [
                 { text: "OK" },
@@ -214,10 +218,10 @@ function SignupBox({ setLoginMode, dispatch, navigation }) {
           onPress={async () => {
             const newUser = await signUp(userName, email, password);
             await dispatch(addUser(newUser, profile));
-            navigation.navigate('Home');
-            setEmail('');
-            setPassword('');
-            setUserName('');
+            navigation.navigate("Home");
+            setEmail("");
+            setPassword("");
+            setUserName("");
           }}
         >
           <Text
@@ -263,7 +267,11 @@ function LoginScreen({ navigation }) {
       {loginMode ? (
         <SigninBox setLoginMode={setLoginMode} navigation={navigation} />
       ) : (
-        <SignupBox setLoginMode={setLoginMode} dispatch={dispatch} navigation={navigation} />
+        <SignupBox
+          setLoginMode={setLoginMode}
+          dispatch={dispatch}
+          navigation={navigation}
+        />
       )}
     </View>
   );
@@ -370,7 +378,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 50,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginLeft: 10,
   },
   plusIcon: {

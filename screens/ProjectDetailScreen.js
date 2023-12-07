@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 import DetailNavigation from "../components/ProjectDetail/DetailNavigation";
-import OverviewPage from "../components/ProjectDetail/OverviewPage";
+import OverviewPage from "../components/ProjectDetail/Overview/OverviewPage";
 import PlusBtn from "../components/ProjectDetail/PlusBtn";
 import {
   deleteProject,
@@ -15,9 +15,9 @@ import {
   subscribeToStagesUpdate,
   subscribeToTasksUpdate,
 } from "../data/Actions";
-import TasksPage from "../components/ProjectDetail/TasksPage";
-import StagesPage from "../components/ProjectDetail/StagesPage";
-import TeamPage from "../components/ProjectDetail/TeamPage";
+import TasksPage from "../components/ProjectDetail/Tasks/TasksPage";
+import StagesPage from "../components/ProjectDetail/Stages/StagesPage";
+import TeamPage from "../components/ProjectDetail/Team/TeamPage";
 
 function ProjectDetailScreen({ route, navigation }) {
   const { projectId, currentUser } = route.params;
@@ -56,7 +56,7 @@ function ProjectDetailScreen({ route, navigation }) {
       const startDate = new Date(stage.startDate);
       const endDate = new Date(stage.endDate);
       return currentDate >= startDate && currentDate <= endDate;
-    };
+    }
   });
 
   return (
@@ -152,8 +152,8 @@ function ProjectDetailScreen({ route, navigation }) {
         <TouchableOpacity
           style={styles.overlayBtn}
           onPress={() => {
-            dispatch(deleteProject(projectId, {...currentProject}));
-            navigation.navigate('ProjectList');
+            dispatch(deleteProject(projectId, { ...currentProject }));
+            navigation.navigate("ProjectList");
           }}
         >
           <Icon name="trash-2" type="feather" size={24} color="white" />

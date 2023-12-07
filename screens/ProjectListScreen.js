@@ -1,16 +1,10 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Icon } from "@rneui/themed";
 
-import { subscribeToProjectsUpdates, setUserList } from "../data/Actions";
+import { subscribeToProjectsUpdates } from "../data/Actions";
 import ProjectListItem from "../components/ProjectListItem";
 
 function ProjectListScreen({ navigation }) {

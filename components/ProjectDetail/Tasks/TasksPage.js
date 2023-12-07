@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   scroll: {
-    height: '82.5%',
+    height: "82.5%",
   },
 });
 

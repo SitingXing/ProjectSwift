@@ -3,7 +3,7 @@ import { Icon, Overlay } from "@rneui/themed";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 
-import { updateTask } from "../../data/Actions";
+import { updateTask } from "../../../data/Actions";
 
 function TaskItem({ tasks, task, projectId, navigation }) {
   const dispatch = useDispatch();
@@ -119,7 +119,7 @@ function TaskItem({ tasks, task, projectId, navigation }) {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: 1,
     borderColor: "#DFDFDF",
     borderRadius: 10,

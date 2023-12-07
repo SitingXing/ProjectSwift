@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text } from "react-native";
 
-import TaskItem from "../ProjectDetail/TaskItem";
+import TaskItem from "../ProjectDetail/Tasks/TaskItem";
 
 function MyTasksItem({ item, navigation }) {
   return (

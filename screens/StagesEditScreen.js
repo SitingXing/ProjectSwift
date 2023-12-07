@@ -5,14 +5,13 @@ import {
   Text,
   ScrollView,
 } from "react-native";
-import { Icon, Input } from "@rneui/themed";
-import { useState, useEffect, useReducer } from "react";
+import { Icon } from "@rneui/themed";
+import { useState, useEffect } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-import StageEditItem from "../components/ProjectDetail/StageEditItem";
+import StageEditItem from "../components/ProjectDetail/Stages/StageEditItem";
 import { subscribeToStagesUpdate, updateProject } from "../data/Actions";
-import { useSelector } from "react-redux";
 import { getDayEndDate, getDayStartDate } from "../DateSet";
 
 function StagesEditScreen({ navigation, route }) {

@@ -13,7 +13,6 @@ function ProjectStageItem({
   const [showstart, setShowstart] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
   const [showend, setShowend] = useState(false);
-  console.log(showstart)
 
   return (
     <View style={styles.container}>

@@ -312,15 +312,17 @@ const updateProject = (updatedProject, projectId, userList) => {
 
 const deleteProject = (projectId, project) => {
   return async (dispatch) => {
-    await deleteDoc(doc(db, 'Projects', projectId));
+    await deleteDoc(doc(db, "Projects", projectId));
 
     const members = project.members;
     const promises = members.map(async (member) => {
-      const ref = doc(db, 'users', member.key);
+      const ref = doc(db, "users", member.key);
       const snap = await getDoc(ref);
       const projectList = snap.data().projectsList;
-      const newProjectList = [...projectList].filter(project => project !== projectId);
-      await updateDoc(ref, {projectsList: newProjectList});
+      const newProjectList = [...projectList].filter(
+        (project) => project !== projectId
+      );
+      await updateDoc(ref, { projectsList: newProjectList });
     });
     await Promise.all(promises);
   };
@@ -383,7 +385,7 @@ const unsubscribeFromCurrentProjectUpdates = () => {
   if (currentProjectSnapshotUnsub) {
     currentProjectSnapshotUnsub();
     currentProjectSnapshotUnsub = undefined;
-  };
+  }
 };
 
 const subscribeToStagesUpdate = (projectId) => {
@@ -422,13 +424,13 @@ const unsubscribeFromStageUpdate = () => {
   if (currentProjectStagesUnsub) {
     currentProjectStagesUnsub();
     currentProjectSnapshotUnsub = undefined;
-  };
+  }
 };
 
 const subscribeToCommentsUpdate = (projectId, tasks) => {
   if (currentTaskCommentsUnsub) {
-    currentTaskCommentsUnsub.forEach(unsub => unsub());
-  };
+    currentTaskCommentsUnsub.forEach((unsub) => unsub());
+  }
 
   return async (dispatch, getState) => {
     const commentsUnsubFunctions = [];
@@ -481,9 +483,9 @@ const subscribeToCommentsUpdate = (projectId, tasks) => {
 
 const unsubscribeFromCommentsUpdate = () => {
   if (currentTaskCommentsUnsub) {
-    currentTaskCommentsUnsub.forEach(unsub => unsub());
+    currentTaskCommentsUnsub.forEach((unsub) => unsub());
     currentTaskCommentsUnsub = undefined;
-  };
+  }
 };
 
 const subscribeToTasksUpdate = (projectId) => {
@@ -531,7 +533,7 @@ const subscribeToTasksUpdate = (projectId) => {
               };
             } else {
               updateStage = {};
-            };
+            }
 
             const edited = task.edited;
             const updatedEdited = {
@@ -608,13 +610,13 @@ const unsubscribeFromTasksUpdate = () => {
   if (currentProjectTasksUnsub) {
     currentProjectTasksUnsub();
     currentProjectTasksUnsub = undefined;
-  };
+  }
 };
 
 const subscribeToCurrentUserTasks = (projects, userId) => {
   if (currentUserTasksUnsub) {
-    currentUserTasksUnsub.forEach(unsub => unsub());
-  };
+    currentUserTasksUnsub.forEach((unsub) => unsub());
+  }
 
   return async (dispatch, getState) => {
     const userTasksUnsubFunctions = [];
@@ -623,16 +625,19 @@ const subscribeToCurrentUserTasks = (projects, userId) => {
 
     projects.forEach((project) => {
       const userTasksUnsub = onSnapshot(
-        collection(db, 'Projects', project, 'tasks'),
+        collection(db, "Projects", project, "tasks"),
         async (snapshots) => {
           const userTasks = [];
           const tasks = [];
           snapshots.docs.forEach(async (snap) => {
             const dueDate = snap.data().dueDate.toDate().toString();
             const editedTime = snap.data().edited.time.toDate().toString();
-            if (snap.data().assignedTo.includes(userId) && !snap.data().finished) {
+            if (
+              snap.data().assignedTo.includes(userId) &&
+              !snap.data().finished
+            ) {
               userTasks.push(snap._key.path.segments[8]);
-            };
+            }
             tasks.push({
               ...snap.data(),
               dueDate: dueDate,
@@ -650,13 +655,15 @@ const subscribeToCurrentUserTasks = (projects, userId) => {
             tasks: tasks,
           };
 
-          const existingTaskIndex = newTasksList.findIndex((item) => item.projectId === project);
+          const existingTaskIndex = newTasksList.findIndex(
+            (item) => item.projectId === project
+          );
 
           if (existingTaskIndex !== -1) {
             newTasksList[existingTaskIndex] = { ...currentUserTasks };
           } else {
             newTasksList.push(currentUserTasks);
-          };
+          }
 
           dispatch({
             type: SET_USER_TASKS,
@@ -675,9 +682,9 @@ const subscribeToCurrentUserTasks = (projects, userId) => {
 
 const unsubscribeFromCurrentUserTasks = () => {
   if (currentUserTasksUnsub) {
-    currentUserTasksUnsub.forEach(unsub => unsub());
+    currentUserTasksUnsub.forEach((unsub) => unsub());
     currentUserTasksUnsub = undefined;
-  };
+  }
 };
 
 const addTask = (
@@ -700,8 +707,8 @@ const addTask = (
       finished: false,
       edited: {
         time: new Date(),
-        type: 'create',
-      }
+        type: "create",
+      },
     };
     await addDoc(collection(db, "Projects", projectId, "tasks"), newTask);
   };
@@ -713,13 +720,10 @@ const updateTask = (updatedTask, taskId, projectId) => {
       ...updatedTask,
       edited: {
         time: new Date(),
-        type: 'change',
-      }
+        type: "change",
+      },
     };
-    await updateDoc(
-      doc(db, "Projects", projectId, "tasks", taskId),
-      updates
-    );
+    await updateDoc(doc(db, "Projects", projectId, "tasks", taskId), updates);
   };
 };
 

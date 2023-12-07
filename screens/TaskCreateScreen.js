@@ -11,7 +11,7 @@ import { useState } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useDispatch, useSelector } from "react-redux";
 
-import AttachedLinks from "../components/ProjectDetail/AttachedLinks";
+import AttachedLinks from "../components/ProjectDetail/Tasks/AttachedLinks";
 import { addTask, updateTask } from "../data/Actions";
 import { getDayEndDate } from "../DateSet";
 
